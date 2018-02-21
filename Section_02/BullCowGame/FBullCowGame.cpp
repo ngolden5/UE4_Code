@@ -1,100 +1,98 @@
+#pragma once
+
 #include "FBullCowGame.h"
+#include <map>
+
+//To make the code more easily transferable to Unreal. Using is more complicated because of parameters.
+#define TMap std::map 
+
 //Magic words and constants.
 constexpr int32 DEFAULT_MAX_TRIES = 8;
-const FText HIDDEN_WORD = "planet";
+const FString HIDDEN_WORD = "planet"; //Add other words, maybe dictionary, let user choose word length.
 using int32 = int;
 
-FBullCowGame::FBullCowGame()
-{
-	Reset();
-}
+FBullCowGame::FBullCowGame(){ Reset(); }//default constructor
+
+int32 FBullCowGame::GetCurrentTry() const { return MyCurrentTry; }
+int32 FBullCowGame::GetHiddenWordLength() const { return MyHiddenWord.length(); }
+bool FBullCowGame::IsGameWon() const { return bGameIsWon; }
+bool FBullCowGame::bCheckForDupeLetters() { return false; }
 
 void FBullCowGame::Reset()
 {
 	MyCurrentTry = 1;
-	MyMaxTries = DEFAULT_MAX_TRIES;
 	MyHiddenWord = HIDDEN_WORD;
 	return;
 }
 
-int32 FBullCowGame::GetMaxTries() const //Can't modify variables.
+int32 FBullCowGame::GetMaxTries() const
 {
-	return MyMaxTries;
+	TMap<int32, int32> WordLengthToMaxTries{ {3, 4}, {4,7}, {5,10}, {6,16}, {7, 20} };
+	return WordLengthToMaxTries[MyHiddenWord.length()];
 }
 
-int32 FBullCowGame::GetCurrentTry() const //Only works on member/class functions.
+bool FBullCowGame::IsIsogram(FString Word) const
 {
-	return MyCurrentTry;
-}
+	if (Word.length() <= 1) { return true; }
 
-int32 FBullCowGame::GetHiddenWordLength() const
-{
-	return MyHiddenWord.length();
-}
+	TMap<char, bool> LetterSeen;
 
-bool FBullCowGame::IsGameWon() const
-{
-	return bGameIsWon;
-}
-
-bool FBullCowGame::IsIsogram() const
-{
-	return false;
-}
-
-EGuessStatus FBullCowGame::CheckGuessValidity(FText Guess) const
-{
-	if (false) 	//if guess isn't an isogram, return error
+	for (auto Letter : Word)
 	{
-		return EGuessStatus::Not_Isogram;
+		Letter = tolower(Letter); 
+		if(LetterSeen[Letter]) { return false; }
+		else{ LetterSeen[Letter] = true; }
 	}
-	else if (false) 	//if guess isn't all lowercase, return error
-	{
-		return EGuessStatus::Not_Lowercase;
-	}
-	else if (GetHiddenWordLength() != Guess.length()) 	//if guess length is wrong, return error
-	{
-		return EGuessStatus::Wrong_Length;
-	}
-	else
-	{
-		return EGuessStatus::OK;	//else return ok
-	}
+
+	return true; //for example in cases where /0 is entered
 }
 
-//@input valid guess
-//increments
-FBullCowCount FBullCowGame::SubmitValidGuess(FText Guess)
+bool FBullCowGame::IsLowercase(FString Word) const
+{
+	for (auto Letter : Word)
+	{
+		if (isupper(Letter)) { return false; }
+	}
+	return true;
+}
+
+EGuessStatus FBullCowGame::CheckGuessValidity(FString Guess) const
+{
+	//Implicit dependencies. 
+
+	//if guess isn't an isogram, return error
+	if (!IsIsogram(Guess)) 	{ return EGuessStatus::Not_Isogram; }
+	//if guess isn't all lowercase, return error
+	else if (!IsLowercase(Guess) )	{ return EGuessStatus::Not_Lowercase; }
+	//if guess length is wrong, return error
+	else if (GetHiddenWordLength() != Guess.length()) { return EGuessStatus::Wrong_Length; }
+	//else return ok
+	else { return EGuessStatus::OK;	}
+}
+
+FBullCowCount FBullCowGame::SubmitValidGuess(FString Guess)
 {
 	MyCurrentTry++;
 	FBullCowCount BullCowCount;
+	int32 WordLength = GetHiddenWordLength(); 
 
-	//loop through all letters in the hidden word
-	int32 WordLength = GetHiddenWordLength(); //assuming same length as guess
 	for (int32 MHWChar = 0; MHWChar < WordLength; MHWChar++)
 	{
-		//compare letters against the guess
 		for (int32 GChar = 0; GChar < WordLength; GChar++)
 		{
-			//if they match then
 			if (Guess[GChar] == MyHiddenWord[MHWChar])
 			{
-				if (MHWChar == GChar) //If they're in the same place.
-				{
-					BullCowCount.Bulls++; //increment bulls
-				}
-				else
-				{
-					BullCowCount.Cows++; //increment cows
-				}
+				//increment bulls
+				if (MHWChar == GChar) { BullCowCount.Bulls++; }
+				//increment cows
+				else { BullCowCount.Cows++; }
 			}
 		}
-
 	}
-	if (BullCowCount.Bulls == WordLength)
-		bGameIsWon = true;
-	else
-		bGameIsWon = false;
+
+	if (BullCowCount.Bulls == WordLength) { bGameIsWon = true; }
+	else { bGameIsWon = false; }
 
 	return BullCowCount;
 }
+

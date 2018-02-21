@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 
-using FText = std::string;
+//to make syntax Unreal friendly
+using FString = std::string;
 using int32 = int;
 
 struct FBullCowCount
@@ -10,7 +11,7 @@ struct FBullCowCount
 	int32 Cows = 0;
 };
 
-enum class EGuessStatus //strongly typed enum as opposed to the more "global" non-class version. Similar to Java.
+enum class EGuessStatus
 {
 	OK,
 	Not_Isogram,
@@ -21,30 +22,27 @@ enum class EGuessStatus //strongly typed enum as opposed to the more "global" no
 	Invalid_Status
 };
 
-//using namespace is never used in header files. Ever. Some people don't like using namespace in the code.
+
 class FBullCowGame 
 {
 public:
 	FBullCowGame(); //constructor
+	void Reset(); 
 
-	void Reset(); // TODO make a more rich return value. int WordLength as input.
 	int32 GetMaxTries() const;
 	int32 GetCurrentTry() const;
 	int32 GetHiddenWordLength() const;
 	bool IsGameWon() const;
-	bool IsIsogram() const;
-	EGuessStatus CheckGuessValidity(FText) const; 
 
-	//struct bulls & cows check
-	// provide a method for counting bulls & cows, and increasing turn #
-	//counts bulls % cows, and increases try # assuming valid guess.
-	FBullCowCount SubmitValidGuess(FText);
+	EGuessStatus CheckGuessValidity(FString) const; 
+	FBullCowCount SubmitValidGuess(FString);
 
-
-//Ignore this and focus on the interface ^
 private:
-	int32 MyCurrentTry;
-	int32 MyMaxTries;
-	FText MyHiddenWord;
+	bool IsIsogram(FString) const; //Check to see if prefix b is used in Unreal Coding Standards
+	bool IsLowercase(FString) const;
+	bool bCheckForDupeLetters();
 	bool bGameIsWon;
+	int32 MyCurrentTry;
+	FString MyHiddenWord;
+
 };
