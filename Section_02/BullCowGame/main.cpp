@@ -2,42 +2,37 @@
 This acts as the view in a MVC pattern, and is responsible for all
 user interactions. For game logic see the FBullCowGame class.
 */
+#pragma once
 
-#include <iostream> //Standard libraries.
+#include <iostream> 
 #include <string>
-//#include "" Your code or other code.
 #include "FBullCowGame.h"
 
-using FText = std::string;
-using int32 = int; //primitive, technically a double declare.
 
+//to make syntax Unreal friendly
+using FText = std::string; 
+using int32 = int; 
 
-//using namespace std; //This makes std::std::cout unnecessary.
-//People don't like using FOR NAMESPACES ONLY.
-
-//Gotta do this so it knows it's there.
-//Called a prototype.
-//Will eventually go into a header file.
+//function prototypes
 void game_introduce();
 void game_play();
-FText GetValidGuess();
 void game_repeatGuess(FText &Guess);
-bool game_AskToPlayAgain();
+bool game_askToPlayAgain();
+void game_printSummary();
 
-FBullCowGame BCGame; //Global Scope
-//Generally bad thing, is good for stuff that needs to be accessed by multiple things/a single instance.
+FText GetValidGuess();
+
+FBullCowGame BCGame; //Instantiate a new game, which we re-use across plays
 
 //The Entry Point for our program
 int main()
 {
-	//constexpr int NUMBER_OF_TURNS = 5;
 	bool bPlayAgain = false;
 	do
 	{
 		game_introduce();
 		game_play();
-		//TODO add a game summary
-		bPlayAgain = game_AskToPlayAgain();
+		bPlayAgain = game_askToPlayAgain();
 	} 
 	while (bPlayAgain == true);
 
@@ -47,27 +42,23 @@ int main()
 void game_introduce()
 {
 	// introduce the game
-
-	std::cout << "\n\nWelcome to Bulls and Cows, a fun word game." << std::endl;  //Curly braces, namespace to avoid confusion between same naming. std::cout is odd in that it uses overloaded operators. Piping, kinda.
+	std::cout << "\n\nWelcome to Bulls and Cows, a fun word game." << std::endl;  
 	std::cout << "Can you guess the " << BCGame.GetHiddenWordLength();
 	std::cout << " letter isogram I'm thinking of?" << std::endl;
 
-	return;
+	return; //Good habit to place returns at the end.
 }
 
+//plays a single game to completion
 void game_play()
 {
-//Default Constructor, Instantiate a new game.
 	BCGame.Reset();
 	int32 MaxTries = BCGame.GetMaxTries();
-	//std::cout << MaxTries << std::endl;
+
 	std::cout << std::endl;
 
 	//loop asking for guesses while the game is NOT won AND there are still tries remaining.
-
-	//loop for the number of turns asking for guesses.
 	while(!BCGame.IsGameWon() && BCGame.GetCurrentTry() <= MaxTries)
-	//for (int32 count = 0; count < MaxTries; count++) //TODO use a while loop in a for loop like way, but with logic proofreading.
 	{
 		FText guess = GetValidGuess(); 
 
@@ -81,11 +72,11 @@ void game_play()
 		std::cout << std::endl;
 	}
 
-	//Don't use todo for things that aren't inserted.
-	//TODO summarise game
+	game_printSummary();
+	return;
 }
 
-FText GetValidGuess() //loop continually until user gives a valid guess.
+FText GetValidGuess() 
 {
 	FText Guess = "";
 	int32 currentGuess = 0;
@@ -94,28 +85,27 @@ FText GetValidGuess() //loop continually until user gives a valid guess.
 	do 
 	{
 		currentGuess = BCGame.GetCurrentTry();
+
+		std::cout << "Try " << currentGuess << " of " << BCGame.GetMaxTries();
+		std::cout << ". Make a guess: ";
+
 		//get a guess from the player
-		std::cout << "Try " << currentGuess << ". Make a guess: ";
-		getline(std::cin, Guess); //Automatically ends at newline. Stops at spaces. If there's stuff left, you can eat it with other std::cin statements.
-								  //std::cout << std::endl;
-
-
+		getline(std::cin, Guess); 
 		Status = BCGame.CheckGuessValidity(Guess);
 		switch (Status)
 		{
 			case EGuessStatus::Wrong_Length:
-				std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word. \n";
+				std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word. \n\n";
 				break;
 			case EGuessStatus::Not_Isogram:
-				std::cout << "Please enter a word without repeating letters. \n";
+				std::cout << "Please enter a word without repeating letters. \n\n";
 				break;
 			case EGuessStatus::Not_Lowercase:
-				std::cout << "Please enter all lowercase lettrs. \n";
+				std::cout << "Please enter all lowercase lettrs. \n\n";
 				break;
 			default:
 				break; //Assume the guess is valid.
 		}
-	std::cout << std::endl;
 	} while (Status == EGuessStatus::OK); //Keep looping until we get valid input
 
 	return Guess;
@@ -129,12 +119,19 @@ void game_repeatGuess(FText &Guess)
 	std::cout << std::endl;
 }
 
-bool game_AskToPlayAgain()
+bool game_askToPlayAgain()
 {
-	std::cout << "Do you want to play again? (Y/N)";
+	std::cout << "Do you want to play again with the same hidden word? (Y/N)";
 	FText Response = "";
 	getline(std::cin, Response);
 	std::cout << std::endl;
 
 	return (Response[0] == 'y') || (Response[0] == 'Y');
+}
+
+void game_printSummary()
+{
+	//Bad Grammar used intentionally here. Check Urban Dictionary for more info.
+	if (BCGame.IsGameWon()) { std::cout << "You're winner!\n"; }
+	else{ std::cout << "Too bad. You ran out of tries.\n"; }
 }
