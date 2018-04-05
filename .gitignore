@@ -4,3 +4,4 @@ Section_03/BuildingEscape/Content/StarterContent/
 Section_03/BuildingEscape/Binaries/
 *.VC.db
 Section_03/BuildingEscape/.vs/
+*.VC.opendb
