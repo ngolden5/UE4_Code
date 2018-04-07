@@ -5,3 +5,4 @@ Section_03/BuildingEscape/Binaries/
 *.VC.db
 Section_03/BuildingEscape/.vs/
 *.VC.opendb
+Section_03/BuildingEscape/Content/NewMap_BuiltData.uasset
