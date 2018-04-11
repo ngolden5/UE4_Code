@@ -19,7 +19,7 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Owner = GetOwner(); //Clearly this makes sense because the door is the only thing of focus here.
 	//Find pc
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 
@@ -30,19 +30,23 @@ void UOpenDoor::BeginPlay()
 
 void UOpenDoor::OpenDoor()
 {
-	// Find the owning Actor
-	AActor* Owner = GetOwner();
-	//Create a rotator
-	FRotator NewRotation = FRotator(0.0f, 0.0f, 0.0f);
 
-	//Set the door rotation
-	Owner->SetActorRotation(NewRotation);
+	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+	
 	//Debug code
+	/**
 	FString ObjectName = Owner->GetName(); //* is overloaded.
 	FString ObjectRotate = Owner->GetTransform().GetRotation().ToString();
 	bool IsActive = PressurePlate->IsOverlappingActor(ActorThatOpens);
 	UE_LOG(LogTemp, Warning, TEXT("%s is at %d"), *ObjectName, IsActive);
+	*/
 }
+
+void UOpenDoor::CloseDoor()
+{
+	Owner->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
+}
+
 
 
 // Called every frame
@@ -57,6 +61,14 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
 	{
 		OpenDoor();
+		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+	}
+
+	// Check if it's time to close the door
+	CurrentTime = GetWorld()->GetTimeSeconds();
+	if ((CurrentTime  - LastDoorOpenTime) >= DoorCloseDelay) //Using a greater than or equal in case of lag or time disruptions.
+	{
+		CloseDoor();
 	}
 }
 
