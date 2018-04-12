@@ -38,7 +38,7 @@ void UOpenDoor::OpenDoor()
 	FString ObjectName = Owner->GetName(); //* is overloaded.
 	FString ObjectRotate = Owner->GetTransform().GetRotation().ToString();
 	bool IsActive = PressurePlate->IsOverlappingActor(ActorThatOpens);
-	UE_LOG(LogTemp, Warning, TEXT("%s is at %d"), *ObjectName, IsActive);
+	UE_LOG(LogTemp, Warning, TEXT("%s is at %d"), *ObjectName, IsActive)
 	*/
 }
 
