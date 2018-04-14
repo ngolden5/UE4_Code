@@ -1,8 +1,13 @@
 Section_03/BuildingEscape/Saved/
 Section_03/BuildingEscape/Intermediate/
-Section_03/BuildingEscape/Content/StarterContent/
+Section_03/BuildingEscape/Content/StarterContent/Textures
+Section_03/BuildingEscape/Content/StarterContent/HDRI
 Section_03/BuildingEscape/Binaries/
 *.VC.db
 Section_03/BuildingEscape/.vs/
 *.VC.opendb
 Section_03/BuildingEscape/Content/NewMap_BuiltData.uasset
+Section_03/BuildingEscape/Content/StarterContent/Maps/
+Section_03/BuildingEscape/Content/StarterContent/Particles/Materials/
+Section_03/BuildingEscape/Content/StarterContent/Shapes/
+Section_03/BuildingEscape/Content/StarterContent/Particles/
